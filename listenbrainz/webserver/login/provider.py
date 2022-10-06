@@ -27,9 +27,9 @@ def init(client_id, client_secret, session_key='musicbrainz'):
     global _musicbrainz, _session_key
     _musicbrainz = OAuth2Service(
         name='musicbrainz',
-        base_url="https://musicbrainz.org/",
-        authorize_url="https://musicbrainz.org/oauth2/authorize",
-        access_token_url="https://musicbrainz.org/oauth2/token",
+        base_url="https://test.metabrainz.org/",
+        authorize_url="https://test.metabrainz.org/new-oauth/authorize",
+        access_token_url="https://test.metabrainz.org/new-oauth/token",
         client_id=client_id,
         client_secret=client_secret,
     )
@@ -52,7 +52,7 @@ def get_user():
             'grant_type': 'authorization_code',
             'redirect_uri': url_for('login.musicbrainz_post', _external=True)
         }, decoder=musicbrainz_auth_session_decoder)
-        data = s.get('oauth2/userinfo').json()
+        data = s.get('new-oauth/userinfo').json()
         musicbrainz_id = data.get('sub')
         musicbrainz_row_id = data.get('metabrainz_user_id')
     except KeyError:
