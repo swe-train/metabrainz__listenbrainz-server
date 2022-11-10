@@ -7,6 +7,9 @@
 @card-shadow-color: #c0c0c0;
 @listen-small-break: @screen-sm;
 @cover-art-thumbnail-size: 66px;
+@card-box-shadow: fade(@card-shadow-color, 10%) 0px 1px 1px,
+  fade(@card-shadow-color, 15%) 0px 2px 2px,
+  fade(@card-shadow-color, 20%) 0px 4px 4px;
 
 #music-player {
   position: relative;
@@ -180,9 +183,7 @@
   background: white;
   border: 1px solid rgb(238, 238, 238);
   box-sizing: border-box;
-  box-shadow: fade(@card-shadow-color, 10%) 0px 1px 1px,
-    fade(@card-shadow-color, 15%) 0px 2px 2px,
-    fade(@card-shadow-color, 20%) 0px 4px 4px;
+  box-shadow: @card-box-shadow;
   border-radius: 8px;
   height: 100%;
 }
@@ -251,6 +252,8 @@
   .main-content {
     display: flex;
     flex-wrap: wrap;
+    position: relative;
+    box-shadow: @card-box-shadow;
 
     > div {
       display: flex;
@@ -506,19 +509,24 @@
       }
     }
   }
-  
+
   .tags-wrapper {
     padding: 0;
     text-align: right;
     background: @lightgrey;
     .tags {
-      .badge{
+      .badge {
         background-color: @blue;
-        a, a:hover, a:visited  {
+        & + .badge {
+          margin-left: 0.3em;
+        }
+        a,
+        a:hover,
+        a:visited {
           color: @white;
         }
       }
-      >span:not(.badge) {
+      > span:not(.badge) {
         display: none;
       }
     }
