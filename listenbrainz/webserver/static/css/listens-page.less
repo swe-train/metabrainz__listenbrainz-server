@@ -506,6 +506,23 @@
       }
     }
   }
+  
+  .tags-wrapper {
+    padding: 0;
+    text-align: right;
+    background: @lightgrey;
+    .tags {
+      .badge{
+        background-color: @blue;
+        a, a:hover, a:visited  {
+          color: @white;
+        }
+      }
+      >span:not(.badge) {
+        display: none;
+      }
+    }
+  }
 
   &.deleted {
     animation: deleted-animation 0.3s linear forwards;

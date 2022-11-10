@@ -37,6 +37,7 @@ import YoutubePlayer from "../brainzplayer/YoutubePlayer";
 import SpotifyPlayer from "../brainzplayer/SpotifyPlayer";
 import SoundcloudPlayer from "../brainzplayer/SoundcloudPlayer";
 import { millisecondsToStr } from "../playlists/utils";
+import TagsComponent from "../metadata-viewer/TagsComponent";
 
 export const DEFAULT_COVER_ART_URL = "/static/img/default_cover_art.png";
 
@@ -44,6 +45,7 @@ export type ListenCardProps = {
   listen: Listen;
   className?: string;
   currentFeedback?: ListenFeedBack | RecommendationFeedBack | null;
+  recordingMetadata?: ListenMetadata;
   showTimestamp: boolean;
   showUsername: boolean;
   // Only used when not passing a custom feedbackComponent
@@ -239,6 +241,7 @@ export default class ListenCard extends React.Component<
       feedbackComponent,
       additionalMenuItems,
       currentFeedback,
+      recordingMetadata,
       newAlert,
       updateFeedbackCallback,
       ...otherProps
@@ -300,6 +303,13 @@ export default class ListenCard extends React.Component<
           )}
         </span>
       );
+    }
+    // Use recording tags if available, release_group tags as a fallback
+    let tagsToUse;
+    if (recordingMetadata?.tag?.recording) {
+      tagsToUse = recordingMetadata?.tag?.recording;
+    } else if (recordingMetadata?.tag?.release_group) {
+      tagsToUse = recordingMetadata?.tag?.release_group;
     }
 
     return (
@@ -500,6 +510,7 @@ export default class ListenCard extends React.Component<
             {additionalContent}
           </div>
         )}
+        <TagsComponent tags={tagsToUse} />
       </Card>
     );
   }
