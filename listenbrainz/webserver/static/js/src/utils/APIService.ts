@@ -1122,6 +1122,30 @@ export default class APIService {
     return response.json();
   };
 
+  bulkLookupRecordingMetadata = async (
+    recordingMBIDs: string[],
+    inc: Array<"artist" | "tag" | "release"> = ["tag"]
+  ): Promise<RecordingMetadataBulkLookup | null> => {
+    if (!recordingMBIDs?.length) {
+      return null;
+    }
+    const queryParams: any = {
+      recording_mbids: recordingMBIDs.join(","),
+    };
+    const url = new URL(`${this.APIBaseURI}/metadata/recording/`);
+    // Iterate and add each queryParams
+    Object.keys(queryParams).map((key) =>
+      url.searchParams.append(key, queryParams[key])
+    );
+    if (inc?.length) {
+      url.searchParams.append("inc", inc.join(" "));
+    }
+
+    const response = await fetch(url.toString());
+    await this.checkStatus(response);
+    return response.json();
+  };
+
   resetUserTimezone = async (
     userToken: string,
     zonename: string

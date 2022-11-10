@@ -61,3 +61,7 @@ declare type MetadataLookup = {
   release_mbid: string;
   release_name: string;
 };
+
+declare type RecordingMetadataBulkLookup = {
+  [recording_id: string]: ListenMetadata;
+};
