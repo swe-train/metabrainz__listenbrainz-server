@@ -820,6 +820,7 @@ export default class Listens extends React.Component<
     // Scroll to the top of the listens list
     this.updatePaginationVariables();
     this.loadFeedback();
+    this.loadRecordingMetadata();
     if (typeof this.listensTable?.current?.scrollIntoView === "function") {
       this.listensTable.current.scrollIntoView({ behavior: "smooth" });
     }
