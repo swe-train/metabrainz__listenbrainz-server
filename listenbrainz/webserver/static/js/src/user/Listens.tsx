@@ -66,6 +66,7 @@ export interface ListensState {
   previousListenTs?: number;
   recordingMsidFeedbackMap: RecordingFeedbackMap;
   recordingMbidFeedbackMap: RecordingFeedbackMap;
+  recordingMetadata: RecordingMetadataBulkLookup;
   recordingToPin?: Listen;
   recordingToReview?: Listen;
   recordingToPersonallyRecommend?: Listen;
@@ -109,6 +110,7 @@ export default class Listens extends React.Component<
       recordingToPersonallyRecommend: props.listens?.[0],
       recordingMsidFeedbackMap: {},
       recordingMbidFeedbackMap: {},
+      recordingMetadata: {},
       dateTimePickerValue: nextListenTs
         ? new Date(nextListenTs * 1000)
         : new Date(Date.now()),
@@ -151,6 +153,7 @@ export default class Listens extends React.Component<
       this.receiveNewPlayingNow(playingNowListen);
     }
     this.loadFeedback();
+    this.loadRecordingMetadata();
   }
 
   componentWillUnmount() {
@@ -504,6 +507,33 @@ export default class Listens extends React.Component<
     this.setState({ recordingMsidFeedbackMap, recordingMbidFeedbackMap });
   };
 
+  loadRecordingMetadata = async () => {
+    const { newAlert } = this.props;
+    const { APIService } = this.context;
+    const { listens } = this.state;
+    let recordingMBIDs = [];
+
+    if (listens && listens.length) {
+      recordingMBIDs = _.compact(listens.map(getRecordingMBID));
+
+      try {
+        const data = await APIService.bulkLookupRecordingMetadata(
+          recordingMBIDs,
+          ["tag"]
+        );
+        this.setState({ recordingMetadata: data ?? {} });
+        return;
+      } catch (error) {
+        newAlert(
+          "warning",
+          "Could not load listens metadata",
+          typeof error === "object" ? error.message : error
+        );
+      }
+    }
+    this.setState({ recordingMetadata: {} });
+  };
+
   updateFeedback = (
     recordingMbid: string,
     score: ListenFeedBack | RecommendationFeedBack,
@@ -548,6 +578,17 @@ export default class Listens extends React.Component<
     return recordingMsid
       ? _.get(recordingMsidFeedbackMap, recordingMsid, 0)
       : 0;
+  };
+
+  getMetadataForListen = (
+    recordingMBID?: string
+  ): ListenMetadata | undefined => {
+    if (!recordingMBID) {
+      return undefined;
+    }
+    const { recordingMetadata } = this.state;
+    const mbidFeedback = _.get(recordingMetadata, recordingMBID);
+    return mbidFeedback;
   };
 
   updateRecordingToPin = (recordingToPin: Listen) => {
@@ -763,6 +804,7 @@ export default class Listens extends React.Component<
         showUsername={false}
         listen={listen}
         currentFeedback={this.getFeedbackForListen(listen)}
+        recordingMetadata={this.getMetadataForListen(recordingMBID)}
         updateFeedbackCallback={this.updateFeedback}
         newAlert={newAlert}
         className={`${listen.playing_now ? "playing-now " : ""}${
