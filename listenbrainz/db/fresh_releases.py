@@ -11,6 +11,7 @@ from listenbrainz.db import couchdb
 from listenbrainz.db.cover_art import get_caa_ids_for_release_mbids
 from listenbrainz.db.model.fresh_releases import FreshRelease
 
+VARIOUS_ARTIST_TAG_ID = 21
 
 def get_sitewide_fresh_releases(
         pivot_release_date: date,
@@ -79,6 +80,8 @@ def get_sitewide_fresh_releases(
                         ON acn.artist_credit = ac.id
                       JOIN artist a
                         ON acn.artist = a.id
+                      JOIN artist_tag at
+                        ON at.artist = a.id
                  LEFT JOIN release_tag rt
                         ON rt.release = rl.id
                  LEFT JOIN tag t
@@ -89,7 +92,11 @@ def get_sitewide_fresh_releases(
                        AND make_date(rgm.first_release_date_year,
                                      rgm.first_release_date_month,
                                      rgm.first_release_date_day) <= %s
-                  GROUP BY rg.id
+            AND NOT EXISTS (
+                    SELECT 1
+                      FROM artist_tag at
+                     WHERE at.artist = a.id AND at.tag = {various_artist_tag_id}
+                ) GROUP BY rg.id
                          , release_date
                          , release_mbid
                          , release_id
@@ -108,7 +115,7 @@ def get_sitewide_fresh_releases(
                     FROM releases
               CROSS JOIN total_count tc
                 ORDER BY {sort_order_str};
-        """.format(sort_order_str=sort_order_str)
+        """.format(various_artist_tag_id=VARIOUS_ARTIST_TAG_ID, sort_order_str=sort_order_str)
 
     listen_count_query = """
                 SELECT
